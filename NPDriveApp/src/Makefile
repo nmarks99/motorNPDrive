@@ -11,7 +11,7 @@ DBD += NPDriveSupport.dbd
 NPDriveSupport_DBD += NPDrive.dbd
 
 # source files to be compiled and added to the library
-NPDrive_SRCS += np_drive.cpp
+NPDrive_SRCS += np_drive.cpp rpc.cpp
 
 # Libraries needed for NPDrive
 NPDrive_LIBS += motor asyn

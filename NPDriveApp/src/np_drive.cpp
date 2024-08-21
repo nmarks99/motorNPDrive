@@ -3,9 +3,10 @@
 #include <epicsExport.h>
 #include <epicsThread.h>
 #include <iocsh.h>
-#include <sstream>
+#include <iostream>
 
 #include "np_drive.hpp"
+#include "rpc.hpp"
 
 constexpr int NUM_PARAMS = 0;
 
@@ -44,7 +45,9 @@ NPDriveMotorController::NPDriveMotorController(const char *portName, const char 
     for (axis = 0; axis < numAxes; axis++) {
         pAxis = new NPDriveMotorAxis(this, axis);
     }
-
+    
+    std::cout << "movingPollPeriod = " << movingPollPeriod << std::endl;
+    std::cout << "idlePollPeriod = " << idlePollPeriod << std::endl;
     startPoller(movingPollPeriod, idlePollPeriod, 2);
 }
 
@@ -127,7 +130,31 @@ asynStatus NPDriveMotorAxis::home(double minVelocity, double maxVelocity, double
 
 asynStatus NPDriveMotorAxis::poll(bool *moving) {
     asynStatus asyn_status = asynSuccess;
+    std::string cmd_string;
+    
+    // send command to read axis position
+    cmd_string = NPDriveCmd::get_position(axisIndex_);
+    std::cout << cmd_string << std::endl;
+    sprintf(pC_->outString_, "%s", cmd_string.c_str());
+    asyn_status = pC_->writeReadController();
+    if (asyn_status) {
+        std::cerr << "asyn error!: " << asyn_status << std::endl;
+        callParamCallbacks();
+        return asyn_status;
+    }
+    
+    // parse the result
+    auto position_m = NPDriveCmd::get_result<double>(pC_->inString_);
+    std::cout << position_m << std::endl;
 
+    std::cout << "---------------------" << std::endl;
+
+    // // TODO: best way to set position for motor record?
+    // // Convert to nanometers?
+    // long long_position_nm = 1e9 * position_m;
+    // setDoubleParam(pC_->motorPosition_, long_position_nm); // RRBV [nanometers]
+    // setDoubleParam(pC_->motorEncoderPosition_, long_position_nm); // RRBV [nanometers]
+    
     callParamCallbacks();
     return asyn_status;
 }
