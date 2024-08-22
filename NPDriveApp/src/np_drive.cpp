@@ -128,52 +128,54 @@ asynStatus NPDriveMotorAxis::home(double minVelocity, double maxVelocity, double
     return asyn_status;
 }
 
-void which_asyn_error(asynStatus asyn_status) {
-    if (asyn_status == asynStatus::asynError) {
-        std::cerr << "asyn error!" << std::endl;
-    } else if (asyn_status == asynStatus::asynTimeout) {
-        std::cerr << "asyn timeout!" << std::endl;
-    } else if (asyn_status == asynStatus::asynDisabled) {
-        std::cerr << "asyn disabled!" << std::endl;
-    } else if (asyn_status == asynStatus::asynOverflow) {
-        std::cerr << "asyn overflow!" << std::endl;
-    } else if (asyn_status == asynStatus::asynDisconnected) {
-        std::cerr << "asyn disconnected!" << std::endl;
-    } else if (asyn_status == asynStatus::asynSuccess) {
-        std::cout << "No error, asynSuccess!" << std::endl;
-    }
+
+template <typename T>
+T parse_json_result(const std::string &in_string) {
+    // '}\n' must be input terminator for asyn, so we add the '}' back
+    std::string in_string_fix = in_string;
+    in_string_fix.push_back('}');
+    const json response_json = json::parse(in_string_fix);
+    return response_json["result"].template get<T>();
 }
 
 asynStatus NPDriveMotorAxis::poll(bool *moving) {
     asynStatus asyn_status = asynSuccess;
     std::string cmd_string;
+    std::string in_string;
+    long long_position_nm = 0;
     double position_m = 0.0;
+    // int done = 1;
     
-    if (axisIndex_ == 1) {
-        cmd_string = NPDriveCmd::get_position(axisIndex_);
-        sprintf(pC_->outString_, "%s", cmd_string.c_str());
-        asyn_status = pC_->writeReadController();
-        if (asyn_status) {
-            goto skip;
-        }
-        // parse the result
-        std::string in_string(pC_->inString_);
-        in_string.push_back('}');
-        position_m = NPDriveCmd::get_result<double>(in_string);
-        std::cout << std::setprecision(9) << position_m << " m" << std::endl;
+    // Send command to read axis position
+    cmd_string = NPDriveCmd::get_position(axisIndex_);
+    sprintf(pC_->outString_, "%s", cmd_string.c_str());
+    asyn_status = pC_->writeReadController();
+    if (asyn_status) {
+        goto skip;
     }
+    position_m = parse_json_result<double>(pC_->inString_);
     
-    // // TODO: best way to set position for motor record?
-    // // Convert to nanometers?
-    // long long_position_nm = 1e9 * position_m;
-    // setDoubleParam(pC_->motorPosition_, long_position_nm); // RRBV [nanometers]
-    // setDoubleParam(pC_->motorEncoderPosition_, long_position_nm); // RRBV [nanometers]
+    // Convert to nanometer "steps"
+    long_position_nm = 1e9 * position_m;
+    setDoubleParam(pC_->motorPosition_, long_position_nm); // RRBV [nanometers]
+    
+    // Check if open-loop command is busy
+    cmd_string = NPDriveCmd::get_status_drive_busy();
+    sprintf(pC_->outString_, "%s", cmd_string.c_str());
+    asyn_status = pC_->writeReadController();
+    if (asyn_status) {
+        goto skip;
+    }
+    // done = not parse_json_result<int>(in_string);
+    // setIntegerParam(pC_->motorStatusDone_, done);
+    // setIntegerParam(pC_->motorStatusMoving_, not done);
 
     skip: 
         setIntegerParam(pC_->motorStatusProblem_, asyn_status ? 1:0);
         callParamCallbacks();
         return asyn_status ? asynError : asynSuccess;
 }
+
 
 asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {
     asynStatus asyn_status = asynSuccess;

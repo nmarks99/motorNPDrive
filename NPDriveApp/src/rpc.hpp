@@ -9,7 +9,7 @@ namespace NPDriveCmd {
         {"jsonrpc", "2.0"},
         {"id", 0}
     };
-
+    
     std::string get_position(int axis);
 
     std::string get_drive_channel();
@@ -21,10 +21,4 @@ namespace NPDriveCmd {
     std::string get_status_positioning();
 
     std::string stop_positioning();
-
-    template <typename T>
-    T get_result(const std::string &in_string) {
-        const json response_json = json::parse(std::string(in_string));
-        return response_json["result"].template get<T>();
-    }
 }
