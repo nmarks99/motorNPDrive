@@ -128,35 +128,51 @@ asynStatus NPDriveMotorAxis::home(double minVelocity, double maxVelocity, double
     return asyn_status;
 }
 
+void which_asyn_error(asynStatus asyn_status) {
+    if (asyn_status == asynStatus::asynError) {
+        std::cerr << "asyn error!" << std::endl;
+    } else if (asyn_status == asynStatus::asynTimeout) {
+        std::cerr << "asyn timeout!" << std::endl;
+    } else if (asyn_status == asynStatus::asynDisabled) {
+        std::cerr << "asyn disabled!" << std::endl;
+    } else if (asyn_status == asynStatus::asynOverflow) {
+        std::cerr << "asyn overflow!" << std::endl;
+    } else if (asyn_status == asynStatus::asynDisconnected) {
+        std::cerr << "asyn disconnected!" << std::endl;
+    } else if (asyn_status == asynStatus::asynSuccess) {
+        std::cout << "No error, asynSuccess!" << std::endl;
+    }
+}
+
 asynStatus NPDriveMotorAxis::poll(bool *moving) {
     asynStatus asyn_status = asynSuccess;
     std::string cmd_string;
+    double position_m = 0.0;
     
-    // send command to read axis position
-    cmd_string = NPDriveCmd::get_position(axisIndex_);
-    std::cout << cmd_string << std::endl;
-    sprintf(pC_->outString_, "%s", cmd_string.c_str());
-    asyn_status = pC_->writeReadController();
-    if (asyn_status) {
-        std::cerr << "asyn error!: " << asyn_status << std::endl;
-        callParamCallbacks();
-        return asyn_status;
+    if (axisIndex_ == 1) {
+        cmd_string = NPDriveCmd::get_position(axisIndex_);
+        sprintf(pC_->outString_, "%s", cmd_string.c_str());
+        asyn_status = pC_->writeReadController();
+        if (asyn_status) {
+            goto skip;
+        }
+        // parse the result
+        std::string in_string(pC_->inString_);
+        in_string.push_back('}');
+        position_m = NPDriveCmd::get_result<double>(in_string);
+        std::cout << std::setprecision(9) << position_m << " m" << std::endl;
     }
     
-    // parse the result
-    auto position_m = NPDriveCmd::get_result<double>(pC_->inString_);
-    std::cout << position_m << std::endl;
-
-    std::cout << "---------------------" << std::endl;
-
     // // TODO: best way to set position for motor record?
     // // Convert to nanometers?
     // long long_position_nm = 1e9 * position_m;
     // setDoubleParam(pC_->motorPosition_, long_position_nm); // RRBV [nanometers]
     // setDoubleParam(pC_->motorEncoderPosition_, long_position_nm); // RRBV [nanometers]
-    
-    callParamCallbacks();
-    return asyn_status;
+
+    skip: 
+        setIntegerParam(pC_->motorStatusProblem_, asyn_status ? 1:0);
+        callParamCallbacks();
+        return asyn_status ? asynError : asynSuccess;
 }
 
 asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {

@@ -9,7 +9,8 @@ iocNPDriveExampleLinux_registerRecordDeviceDriver(pdbbase)
 # Create the controller object
 epicsEnvSet("PORT_NAME", "NPDrive_ETH") 
 drvAsynIPPortConfigure("$(PORT_NAME)", "164.54.115.52:6002")
-
+asynOctetSetOutputEos("$(PORT_NAME)",0,"\n")
+asynOctetSetInputEos("$(PORT_NAME)",0,"}\n")
 dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=$(PREFIX), R=asyn_1, PORT=$(PORT_NAME), ADDR=0, OMAX=$(OUT_BUFF=1000), IMAX=$(IN_BUFF=1000)")
 
 NPDriveMotorCreateController("NPDrive1", "$(PORT_NAME)", 2, 250, 250)
