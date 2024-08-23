@@ -2,8 +2,9 @@
 #include "asynMotorAxis.h"
 #include "asynMotorController.h"
 
-static constexpr char DRIVE_FREQUENCY_STRING[] = "DRIVE_FREQUENCY";
-static constexpr char DRIVE_AMPLITUDE_STRING[] = "DRIVE_AMPLITUDE";
+static constexpr char FREQUENCY_STRING[] = "FREQUENCY";
+static constexpr char AMPLITUDE_STRING[] = "AMPLITUDE";
+static constexpr char STOP_LIMIT_STRING[] = "STOP_LIMIT";
 
 class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
   public:
@@ -19,6 +20,9 @@ class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
   private:
     NPDriveMotorController *pC_;
     int axisIndex_;
+    int amplitude = 0;
+    int frequency = 0;
+    double stop_limit = 0.0;
 
     friend class NPDriveMotorController;
 };
@@ -38,10 +42,12 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     NPDriveMotorAxis *getAxis(asynUser *pasynUser);
     NPDriveMotorAxis *getAxis(int axisNo);
     asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
+    asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
 
   protected:
     int driveFrequencyIndex_;
     int driveAmplitudeIndex_;
+    int stopLimitIndex_;
 
     friend class NPDriveMotorAxis;
 };

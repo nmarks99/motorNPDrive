@@ -6,3 +6,12 @@ pattern
 {2,  "m$(N)",  "asynMotor",  NPDrive1,  1,    "CH2",     um,   Pos,    0.10,    .1,   1.0,     0,      1,     .2,        1e-3,      6,          1e12,       -1e12,    "", "Never", 0}
 {3,  "m$(N)",  "asynMotor",  NPDrive1,  2,    "CH3",     um,   Pos,    0.10,    .1,   1.0,     0,      1,     .2,        1e-3,      6,          1e12,       -1e12,    "", "Never", 0}
 }
+
+file "$(MOTOR_NPDRIVE)/db/NPDrive.db"
+{
+pattern
+{M,   PORT,        ADDR}
+{m1,  NPDrive1,       0}
+{m2,  NPDrive1,       1}
+{m3,  NPDrive1,       2}
+}

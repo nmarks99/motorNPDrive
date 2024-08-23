@@ -26,8 +26,9 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
     NPDriveMotorAxis *pAxis;
     static const char *functionName = "NPDriveMotorController::NPDriveMotorController";
 
-    createParam(DRIVE_FREQUENCY_STRING, asynParamInt32, &driveFrequencyIndex_);
-    createParam(DRIVE_AMPLITUDE_STRING, asynParamInt32, &driveAmplitudeIndex_);
+    createParam(FREQUENCY_STRING, asynParamInt32, &driveFrequencyIndex_);
+    createParam(AMPLITUDE_STRING, asynParamInt32, &driveAmplitudeIndex_);
+    createParam(STOP_LIMIT_STRING, asynParamFloat64, &stopLimitIndex_);
 
     // Connect to motor controller
     status = pasynOctetSyncIO->connect(NPDriveMotorPortName, 0, &pasynUserController_, NULL);
@@ -36,11 +37,10 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
                   "%s: cannot connect to NPDrive motor controller\n", functionName);
     }
 
-    // // Only 2 axes are supported
-    // if (numAxes > 2) {
-    // asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Requested %d axes but only 2 are
-    // supported\n", numAxes);
-    // }
+    // Only 3 axes are supported
+    if (numAxes > 3) {
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Requested %d axes but only 3 are supported\n", numAxes);
+    }
 
     // Create NPDriveMotorAxis object for each axis
     // if not done here, user must call NPDriveMotorCreateAxis from cmd file
@@ -129,14 +129,10 @@ asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velo
     asynStatus asyn_status = asynSuccess;
 
     std::string cmd_string;
-    int frequency = 0;
-    int amplitude = 0;
-    pC_->getIntegerParam(pC_->driveFrequencyIndex_, &frequency);
-    pC_->getIntegerParam(pC_->driveAmplitudeIndex_, &amplitude);
 
     // For now, only closed loop motion is supported through the motor record.
     // Open loop motion is available through additional asyn parameters
-    cmd_string = NPDriveCmd::go_position(axisIndex_, position / DRIVER_RESOLUTION, amplitude, frequency);
+    cmd_string = NPDriveCmd::go_position(axisIndex_, position / DRIVER_RESOLUTION, this->amplitude, this->frequency);
     sprintf(pC_->outString_, "%s", cmd_string.c_str());
     asyn_status = pC_->writeReadController();
    
@@ -210,11 +206,40 @@ skip:
     return asyn_status ? asynError : asynSuccess;
 }
 
-asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value) {
+asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 value) {
+
     asynStatus asyn_status = asynSuccess;
-
     int function = pasynUser->reason;
+    NPDriveMotorAxis *pAxis;
 
+    pAxis = getAxis(pasynUser);
+    
+    if (function == driveAmplitudeIndex_) {
+        pAxis->amplitude = value;
+    }
+    else if (function == driveFrequencyIndex_) {
+        pAxis->frequency = value;
+    }
+
+    callParamCallbacks();
+    return asyn_status;
+}
+
+asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat64 value) {
+    asynStatus asyn_status = asynSuccess;
+    int function = pasynUser->reason;
+    NPDriveMotorAxis *pAxis;
+    
+    pAxis = getAxis(pasynUser);
+
+    if (function == stopLimitIndex_) {
+        pAxis->stop_limit = value;
+        // TODO: test this:
+        // sprintf(this->outString_, "%s", NPDriveCmd::set_stop_limit(pAxis->axisIndex_, value).c_str());
+        // asyn_status = this->writeReadController();
+    }
+
+    callParamCallbacks();
     return asyn_status;
 }
 

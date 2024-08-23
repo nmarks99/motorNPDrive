@@ -52,4 +52,11 @@ namespace NPDriveCmd {
         rpc["method"] = "stopPositioning";
         return rpc.dump();
     }
+
+    std::string set_stop_limit(int channel, double threshold) {
+        json rpc = rpc_template;
+        rpc["method"] = "setStopLimit";
+        rpc["params"] = {channel, threshold};
+        return rpc.dump();
+    }
 }

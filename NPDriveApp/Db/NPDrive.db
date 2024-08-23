@@ -1,14 +1,23 @@
-record(ao, "$(P)NPDrive:Amplitude") {
+record(ao, "$(P)$(M):Amplitude") {
     field(DTYP, "asynInt32")
     field(PINI, "1")
     field(VAL, "300")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))DRIVE_AMPLITUDE")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))AMPLITUDE")
+    field(SCAN, "Passive")
 }
 
-record(ao, "$(P)NPDrive:Frequency") {
+record(ao, "$(P)$(M):Frequency") {
     field(DTYP, "asynInt32")
     field(PINI, "1")
     field(VAL, "1500")
-    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))DRIVE_FREQUENCY")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))FREQUENCY")
+    field(SCAN, "Passive")
+}
+
+# threshold within which closed loop motion stops
+record(ao,"$(P)$(M):StopLimit") {
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))STOP_LIMIT")
+    field(SCAN, "Passive")
 }
 
