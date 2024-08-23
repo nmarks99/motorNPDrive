@@ -1,0 +1,14 @@
+record(ao, "$(P)NPDrive:Amplitude") {
+    field(DTYP, "asynInt32")
+    field(PINI, "1")
+    field(VAL, "300")
+    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))DRIVE_AMPLITUDE")
+}
+
+record(ao, "$(P)NPDrive:Frequency") {
+    field(DTYP, "asynInt32")
+    field(PINI, "1")
+    field(VAL, "1500")
+    field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))DRIVE_FREQUENCY")
+}
+
