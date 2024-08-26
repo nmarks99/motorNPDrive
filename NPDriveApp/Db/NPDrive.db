@@ -14,10 +14,27 @@ record(ao, "$(P)$(M):Frequency") {
     field(SCAN, "Passive")
 }
 
-# threshold within which closed loop motion stops
 record(ao,"$(P)$(M):StopLimit") {
     field(DTYP, "asynFloat64")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))STOP_LIMIT")
     field(SCAN, "Passive")
 }
 
+record(bo, "$(P)$(M):HoldPosition") {
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION")
+    field(SCAN, "Passive")
+}
+
+record(ao, "$(P)$(M):HoldPosition:Target") {
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION_TARGET")
+    field(SCAN, "Passive")
+}
+
+record(ao, "$(P)$(M):HoldPosition:Timeout") {
+    field(DESC, "Seconds to hold the position")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION_TIMEOUT")
+    field(SCAN, "Passive")
+}

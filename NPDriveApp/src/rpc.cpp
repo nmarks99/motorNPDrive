@@ -25,7 +25,7 @@ namespace NPDriveCmd {
         return rpc.dump();
     } 
 
-    // ------------
+
 
     std::string get_position(int axis) {
         json rpc = rpc_template;
@@ -57,6 +57,13 @@ namespace NPDriveCmd {
         json rpc = rpc_template;
         rpc["method"] = "setStopLimit";
         rpc["params"] = {channel, threshold};
+        return rpc.dump();
+    }
+
+    std::string hold_position(int channel, double target, int amplitude, int timeout) {
+        json rpc = rpc_template;
+        rpc["method"] = "holdPosition";
+        rpc["params"] = {channel, target, amplitude, timeout};
         return rpc.dump();
     }
 }
