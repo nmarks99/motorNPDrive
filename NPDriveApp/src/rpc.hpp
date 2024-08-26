@@ -19,6 +19,8 @@ namespace NPDriveCmd {
     std::string go_position(int channel, double target, int amplitude, int frequency);
     std::string get_status_positioning();
     std::string stop_positioning();
+    std::string set_sensors_off();
+    std::string set_drive_channels_off();
     std::string set_stop_limit(int channel, double threshold);
     std::string hold_position(int channel, double target, int amplitude, int timeout);
 

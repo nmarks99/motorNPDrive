@@ -8,6 +8,8 @@ static constexpr char STOP_LIMIT_STRING[] = "STOP_LIMIT";
 static constexpr char HOLD_POSITION_STRING[] = "HOLD_POSITION";
 static constexpr char HOLD_POSITION_TARGET_STRING[] = "HOLD_POSITION_TARGET";
 static constexpr char HOLD_POSITION_TIMEOUT_STRING[] = "HOLD_POSITION_TIMEOUT";
+static constexpr char SET_SENSORS_OFF_STRING[] = "SET_SENSORS_OFF";
+static constexpr char SET_DRIVE_CHANNELS_OFF_STRING[] = "SET_DRIVE_CHANNELS_OFF";
 
 class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
   public:
@@ -56,6 +58,8 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     int holdPositionIndex_;
     int holdPositionTargetIndex_;
     int holdPositionTimeoutIndex_;
+    int setSensorsOffIndex_;
+    int setDriveChannelsOffIndex_;
 
     friend class NPDriveMotorAxis;
 };

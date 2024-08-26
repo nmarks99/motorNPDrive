@@ -1,17 +1,24 @@
+
+# MRES -> EGU
+# 1.0  -> nanometers
+# 1e-3 -> micrometers
+# 1e-6 -> millimeters
+# 1e-9 -> meters
+
 file "$(MOTOR)/db/asyn_motor.db"
 {
 pattern
-{N,   M,       DTYP,         PORT,  ADDR,    DESC,    EGU,  DIR,    VELO,  VBAS,  ACCL,  BDST,   BVEL,   BACC, 	     MRES,   PREC,          DHLM,        DLLM,  INIT, RTSM, RTRY}
-{1,  "m$(N)",  "asynMotor",  NPDrive1,  0,    "CH1",     um,   Pos,    0.10,    .1,   1.0,     0,      1,     .2,        1e-3,      6,          1e12,       -1e12,    "", "Never", 0}
-{2,  "m$(N)",  "asynMotor",  NPDrive1,  1,    "CH2",     um,   Pos,    0.10,    .1,   1.0,     0,      1,     .2,        1e-3,      6,          1e12,       -1e12,    "", "Never", 0}
-{3,  "m$(N)",  "asynMotor",  NPDrive1,  2,    "CH3",     um,   Pos,    0.10,    .1,   1.0,     0,      1,     .2,        1e-3,      6,          1e12,       -1e12,    "", "Never", 0}
+{N,   M,       DTYP,         PORT,  ADDR,    DESC,  EGU,   DIR,  VELO,  VBAS,  ACCL,  BDST, BVEL, BACC,  MRES, PREC, DHLM, DLLM, INIT, RTSM, RTRY}
+{1,  "m$(N)",  "asynMotor",  NPDrive1,  0,  "CH1",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000,-1000,   "", "Never", 0}
+{2,  "m$(N)",  "asynMotor",  NPDrive1,  1,  "CH2",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, 1000,   "", "Never", 0}
+{3,  "m$(N)",  "asynMotor",  NPDrive1,  2,  "CH3",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, 1000,   "", "Never", 0}
 }
 
-file "$(MOTOR_NPDRIVE)/db/NPDrive.db"
+file "$(MOTOR_NPDRIVE)/db/NPDriveAxis.db"
 {
 pattern
-{M,   PORT,        ADDR}
-{m1,  NPDrive1,       0}
-{m2,  NPDrive1,       1}
-{m3,  NPDrive1,       2}
+{M,   PORT,     ADDR}
+{m1,  NPDrive1,    0}
+{m2,  NPDrive1,    1}
+{m3,  NPDrive1,    2}
 }

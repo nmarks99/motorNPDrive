@@ -1,40 +1,12 @@
-record(ao, "$(P)$(M):Amplitude") {
+record(bo, "$(P)NPDrive:SetSensorsOff") {
     field(DTYP, "asynInt32")
-    field(PINI, "1")
-    field(VAL, "300")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))AMPLITUDE")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))SET_SENSORS_OFF")
     field(SCAN, "Passive")
 }
 
-record(ao, "$(P)$(M):Frequency") {
+record(bo, "$(P)NPDrive:SetDriveChannelsOff") {
     field(DTYP, "asynInt32")
-    field(PINI, "1")
-    field(VAL, "1500")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))FREQUENCY")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))SET_DRIVE_CHANNELS_OFF")
     field(SCAN, "Passive")
 }
 
-record(ao,"$(P)$(M):StopLimit") {
-    field(DTYP, "asynFloat64")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))STOP_LIMIT")
-    field(SCAN, "Passive")
-}
-
-record(bo, "$(P)$(M):HoldPosition") {
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION")
-    field(SCAN, "Passive")
-}
-
-record(ao, "$(P)$(M):HoldPosition:Target") {
-    field(DTYP, "asynFloat64")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION_TARGET")
-    field(SCAN, "Passive")
-}
-
-record(ao, "$(P)$(M):HoldPosition:Timeout") {
-    field(DESC, "Seconds to hold the position")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION_TIMEOUT")
-    field(SCAN, "Passive")
-}

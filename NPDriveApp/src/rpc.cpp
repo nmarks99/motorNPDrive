@@ -53,6 +53,18 @@ namespace NPDriveCmd {
         return rpc.dump();
     }
 
+    std::string set_sensors_off() {
+        json rpc = rpc_template;
+        rpc["method"] = "setSensorsOff";
+        return rpc.dump();
+    }
+
+    std::string set_drive_channels_off() {
+        json rpc = rpc_template;
+        rpc["method"] = "setDriveChannelsOff";
+        return rpc.dump();
+    }
+
     std::string set_stop_limit(int channel, double threshold) {
         json rpc = rpc_template;
         rpc["method"] = "setStopLimit";

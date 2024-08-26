@@ -6,8 +6,9 @@ asynOctetSetOutputEos("$(ASYN_IP_PORT)",0,"\n")
 asynOctetSetInputEos("$(ASYN_IP_PORT)",0,"}\n")
 
 # Load asynRecord for debugging
-dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=$(PREFIX), R=asyn_1, PORT=$(ASYN_IP_PORT), ADDR=0, OMAX=$(OUT_BUFF=1000), IMAX=$(IN_BUFF=1000)")
+dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=$(PREFIX), R=asyn_NPDrive, PORT=$(ASYN_IP_PORT), ADDR=0, OMAX=$(OUT_BUFF=1000), IMAX=$(IN_BUFF=1000)")
 
-# Configure NP-Drive controller and motor records
+# Configure NP-Drive controller and load records
 NPDriveMotorCreateController("NPDrive1", "$(ASYN_IP_PORT)", 3, 250, 1000)
 dbLoadTemplate("NPDrive.substitutions", "P=$(PREFIX)")
+dbLoadRecords("$(MOTOR_NPDRIVE)/db/NPDrive.db", "P=$(PREFIX),PORT=NPDrive1,ADDR=0")
