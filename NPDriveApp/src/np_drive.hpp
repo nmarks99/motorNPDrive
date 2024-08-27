@@ -16,8 +16,7 @@ class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
     NPDriveMotorAxis(class NPDriveMotorController *pC, int axisNo);
     void report(FILE *fp, int level);
     asynStatus stop(double acceleration);
-    asynStatus move(double position, int relative, double min_velocity, double max_velocity,
-                    double acceleration);
+    asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
     asynStatus poll(bool *moving);
     asynStatus setClosedLoop(bool closedLoop);
 
@@ -51,6 +50,7 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
 
   protected:
+#define FIRST_NPDRIVE_PARAM driveFrequencyIndex_
     int driveFrequencyIndex_;
     int driveAmplitudeIndex_;
     int stopLimitIndex_;
@@ -59,6 +59,9 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     int holdPositionTimeoutIndex_;
     int setSensorsOffIndex_;
     int setDriveChannelsOffIndex_;
+#define LAST_NPDRIVE_PARAM setDriveChannelsOffIndex_
 
     friend class NPDriveMotorAxis;
 };
+
+#define NUM_NPDRIVE_PARAMS ((int)(&LAST_NPDRIVE_PARAM - &FIRST_NPDRIVE_PARAM + 1))

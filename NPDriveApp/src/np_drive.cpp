@@ -8,13 +8,12 @@
 #include "np_drive.hpp"
 #include "rpc.hpp"
 
-constexpr int NUM_PARAMS = 0;
 constexpr double DRIVER_RESOLUTION = 1e9;
 
 NPDriveMotorController::NPDriveMotorController(const char *portName,
                                                const char *NPDriveMotorPortName, int numAxes,
                                                double movingPollPeriod, double idlePollPeriod)
-    : asynMotorController(portName, numAxes, NUM_PARAMS,
+    : asynMotorController(portName, numAxes, NUM_NPDRIVE_PARAMS,
                           0, // No additional interfaces beyond the base class
                           0, // No additional callback interfaces beyond those in base class
                           ASYN_CANBLOCK | ASYN_MULTIDEVICE,
@@ -25,6 +24,8 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
     int axis;
     NPDriveMotorAxis *pAxis;
     static const char *functionName = "NPDriveMotorController::NPDriveMotorController";
+
+    std::cout << "NUM_NPDRIVE_PARAMS = " << NUM_NPDRIVE_PARAMS << std::endl;
 
     createParam(FREQUENCY_STRING, asynParamInt32, &driveFrequencyIndex_);
     createParam(AMPLITUDE_STRING, asynParamInt32, &driveAmplitudeIndex_);
@@ -137,10 +138,11 @@ asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velo
     // For now, only closed loop motion is supported through the motor record
     sprintf(pC_->outString_, "%s",
             NPDriveCmd::go_position(
-            axisIndex_,
-            position / DRIVER_RESOLUTION,
-            this->amplitude,
-            this->frequency).c_str());
+                axisIndex_,
+                position / DRIVER_RESOLUTION,
+                this->amplitude,
+                this->frequency
+            ).c_str());
     asyn_status = pC_->writeReadController();
 
     if (not parse_json_result<bool>(pC_->inString_)) {
@@ -166,9 +168,9 @@ asynStatus NPDriveMotorAxis::poll(bool *moving) {
     if (asyn_status) {
         goto skip;
     }
-    position_m = parse_json_result<double>(pC_->inString_);       // meters
-    long_position_nm = DRIVER_RESOLUTION * position_m;            // convert to nanometer "steps"
-    setDoubleParam(pC_->motorPosition_, long_position_nm);        // RRBV [nanometers]
+    position_m = parse_json_result<double>(pC_->inString_); // meters
+    long_position_nm = DRIVER_RESOLUTION * position_m;      // convert to nanometer "steps"
+    setDoubleParam(pC_->motorPosition_, long_position_nm);  // RRBV [nanometers]
     setDoubleParam(pC_->motorEncoderPosition_, long_position_nm);
 
     // Check if open-loop command is done
@@ -222,8 +224,7 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
     if (function == driveAmplitudeIndex_) {
         pAxis->amplitude = value;
-    }
-    else if (function == driveFrequencyIndex_) {
+    } else if (function == driveFrequencyIndex_) {
         pAxis->frequency = value;
     }
 
@@ -234,9 +235,10 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
         sprintf(this->outString_, "%s",
                 NPDriveCmd::hold_position(
-                pAxis->axisIndex_,
-                pAxis->hold_target / DRIVER_RESOLUTION,
-                pAxis->amplitude, pAxis->hold_timeout).c_str());
+                    pAxis->axisIndex_,
+                    pAxis->hold_target / DRIVER_RESOLUTION,
+                    pAxis->amplitude, pAxis->hold_timeout
+                ).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
             goto skip;
@@ -272,7 +274,7 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
         if (not parse_json_result<bool>(this->inString_)) {
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error turning off drive channels\n");
         }
-    } 
+    }
 
     // Call base class method
     else {
@@ -296,8 +298,7 @@ asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat6
 
     if (function == holdPositionTargetIndex_) {
         pAxis->hold_target = value;
-    }
-    else if (function == stopLimitIndex_) {
+    } else if (function == stopLimitIndex_) {
         pAxis->stop_limit = value;
     }
 
