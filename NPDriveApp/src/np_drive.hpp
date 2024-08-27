@@ -20,7 +20,6 @@ class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
                     double acceleration);
     asynStatus poll(bool *moving);
     asynStatus setClosedLoop(bool closedLoop);
-    asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
 
   private:
     NPDriveMotorController *pC_;
