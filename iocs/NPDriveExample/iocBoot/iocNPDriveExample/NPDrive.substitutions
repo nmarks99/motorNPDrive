@@ -8,10 +8,10 @@
 file "$(MOTOR)/db/asyn_motor.db"
 {
 pattern
-{N,   M,       DTYP,         PORT,  ADDR,    DESC,  EGU,   DIR,  VELO,  VBAS,  ACCL,  BDST, BVEL, BACC,  MRES, PREC, DHLM, DLLM, INIT, RTSM, RTRY}
-{1,  "m$(N)",  "asynMotor",  NPDrive1,  0,  "CH1",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000,-1000,   "", "Never", 0}
-{2,  "m$(N)",  "asynMotor",  NPDrive1,  1,  "CH2",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, 1000,   "", "Never", 0}
-{3,  "m$(N)",  "asynMotor",  NPDrive1,  2,  "CH3",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, 1000,   "", "Never", 0}
+{N,   M,       DTYP,         PORT,  ADDR,    DESC,  EGU,   DIR,  VELO,  VBAS,  ACCL,  BDST, BVEL, BACC,  MRES, PREC, DHLM,  DLLM, INIT, RTSM, RTRY}
+{1,  "m$(N)",  "asynMotor",  NPDrive1,  0,  "CH1",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, -1000,   "", "Never", 0}
+{2,  "m$(N)",  "asynMotor",  NPDrive1,  1,  "CH2",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, -1000,   "", "Never", 0}
+{3,  "m$(N)",  "asynMotor",  NPDrive1,  2,  "CH3",   um,   Pos,  0.10,    .1,   1.0,     0,    1,   .2,  1e-3,    6, 1000, -1000,   "", "Never", 0}
 }
 
 file "$(MOTOR_NPDRIVE)/db/NPDriveAxis.db"
