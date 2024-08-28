@@ -3,6 +3,8 @@ record(ao, "$(P)$(M):Amplitude") {
     field(PINI, "1")
     field(VAL, "300")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))AMPLITUDE")
+    field(DRVH,"300")
+    field(DRVL,"10")
     field(SCAN, "Passive")
 }
 
@@ -11,6 +13,8 @@ record(ao, "$(P)$(M):Frequency") {
     field(PINI, "1")
     field(VAL, "1500")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))FREQUENCY")
+    field(DRVH,"4000")
+    field(DRVL,"100")
     field(SCAN, "Passive")
 }
 
@@ -18,6 +22,7 @@ record(ao,"$(P)$(M):StopLimit") {
     field(DTYP, "asynFloat64")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))STOP_LIMIT")
     field(SCAN, "Passive")
+    field(PREC, "4")
 }
 
 record(bo, "$(P)$(M):HoldPosition") {
@@ -30,6 +35,7 @@ record(ao, "$(P)$(M):HoldPosition:Target") {
     field(DTYP, "asynFloat64")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION_TARGET")
     field(SCAN, "Passive")
+    field(PREC, "4")
 }
 
 record(ao, "$(P)$(M):HoldPosition:Timeout") {

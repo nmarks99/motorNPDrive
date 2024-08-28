@@ -109,6 +109,7 @@ void NPDriveMotorAxis::report(FILE *fp, int level) {
     asynMotorAxis::report(fp, level);
 }
 
+// returns the "result" field of the JSON string from the controller and as the specified type
 template <typename T> T parse_json_result(const std::string &in_string) {
     // '}\n' must be input terminator for asyn, so we add the '}' back
     std::string in_string_fix = in_string;
@@ -132,7 +133,7 @@ asynStatus NPDriveMotorAxis::stop(double acceleration) {
 
 asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velocity,
                                   double max_velocity, double acceleration) {
-
+    
     asynStatus asyn_status = asynSuccess;
 
     // For now, only closed loop motion is supported through the motor record
@@ -230,8 +231,8 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
     // TODO: Test
     else if (function == holdPositionIndex_) {
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "Holding position %lf for %d seconds\n",
-                  pAxis->hold_target, pAxis->hold_timeout);
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Holding position %e meters for %d seconds\n",
+                  pAxis->hold_target/DRIVER_RESOLUTION, pAxis->hold_timeout);
 
         sprintf(this->outString_, "%s",
                 NPDriveCmd::hold_position(
@@ -252,7 +253,7 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
     // TODO: Test
     else if (function == setSensorsOffIndex_) {
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "Setting all sensors off\n");
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting all sensors off\n");
         sprintf(this->outString_, "%s", NPDriveCmd::set_sensors_off().c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
@@ -265,7 +266,7 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
     // TODO: Test
     else if (function == setDriveChannelsOffIndex_) {
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "Setting all drive channels off\n");
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting all drive channels off\n");
         sprintf(this->outString_, "%s", NPDriveCmd::set_drive_channels_off().c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
@@ -298,8 +299,20 @@ asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat6
 
     if (function == holdPositionTargetIndex_) {
         pAxis->hold_target = value;
-    } else if (function == stopLimitIndex_) {
-        pAxis->stop_limit = value;
+    }
+    else if (function == stopLimitIndex_) {
+        double mres = 0.0;
+        this->getDoubleParam(this->motorRecResolution_, &mres);
+        pAxis->stop_limit = (value / mres) / DRIVER_RESOLUTION;
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n", pAxis->stop_limit);
+        sprintf(this->outString_, "%s", NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit).c_str());
+        asyn_status = this->writeReadController();
+        if (asyn_status) {
+            goto skip;
+        }
+        if (not parse_json_result<bool>(this->inString_)) {
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error setting stop limit\n");
+        }
     }
 
     // Call base class method
@@ -307,17 +320,18 @@ asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat6
         asyn_status = asynMotorController::writeFloat64(pasynUser, value);
     }
 
+skip:
     // Do callbacks so higher layers see any changes
     pAxis->callParamCallbacks();
     return asyn_status;
 }
 
-asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {
-    asynStatus asyn_status = asynSuccess;
-
-    callParamCallbacks();
-    return asyn_status;
-}
+// asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {
+    // asynStatus asyn_status = asynSuccess;
+//
+    // callParamCallbacks();
+    // return asyn_status;
+// }
 
 // ==================
 // iosch registration
