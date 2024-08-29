@@ -15,6 +15,9 @@ static constexpr char GO_STEPS_FORWARD_STRING[] = "GO_STEPS_FORWARD";
 static constexpr char GO_STEPS_REVERSE_STRING[] = "GO_STEPS_REVERSE";
 static constexpr char OPEN_LOOP_STEPS_STRING[] = "OPEN_LOOP_STEPS";
 
+static constexpr char GO_CONTINUOUS_FORWARD_STRING[] = "GO_CONTINUOUS_FORWARD";
+static constexpr char GO_CONTINUOUS_REVERSE_STRING[] = "GO_CONTINUOUS_REVERSE";
+
 class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
   public:
     NPDriveMotorAxis(class NPDriveMotorController *pC, int axisNo);
@@ -68,6 +71,8 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     int goStepsForwardIndex_;
     int goStepsReverseIndex_;
     int openLoopStepsIndex_;
+    int goContinuousForwardIndex_;
+    int goContinuousReverseIndex_;
 #define LAST_NPDRIVE_PARAM setDriveChannelsOffIndex_
 
     friend class NPDriveMotorAxis;

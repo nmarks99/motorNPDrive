@@ -15,6 +15,20 @@ namespace NPDriveCmd {
         return rpc.dump();
     }
 
+    std::string go_continuous_forward(int channel, int amplitude, int frequency) {
+        json rpc = rpc_template;
+        rpc["method"] = "goContinousForward";
+        rpc["params"] = {channel, amplitude, frequency};
+        return rpc.dump();
+    }
+
+    std::string go_continuous_reverse(int channel, int amplitude, int frequency) {
+        json rpc = rpc_template;
+        rpc["method"] = "goContinousForward";
+        rpc["params"] = {channel, amplitude, frequency};
+        return rpc.dump();
+    }
+
     std::string stop_motion() {
         json rpc = rpc_template;
         rpc["method"] = "stopMotion";

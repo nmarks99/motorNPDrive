@@ -325,7 +325,7 @@ text {
 		height=20
 	}
 	control {
-		chan="$(P)$(M):GoStepsReverse.PROC"
+		chan="$(P)$(M):JogReverse.PROC"
 		clr=14
 		bclr=51
 	}
@@ -341,7 +341,7 @@ text {
 		height=20
 	}
 	control {
-		chan="$(P)$(M):GoStepsForward.PROC"
+		chan="$(P)$(M):JogForward.PROC"
 		clr=14
 		bclr=51
 	}

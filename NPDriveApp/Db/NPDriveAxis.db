@@ -62,3 +62,15 @@ record(ao, "$(P)$(M):OpenLoopSteps") {
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))OPEN_LOOP_STEPS")
     field(SCAN, "Passive")
 }
+
+record(bo, "$(P)$(M):JogForward") {
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))GO_CONTINUOUS_FORWARD")
+    field(SCAN, "Passive")
+}
+
+record(bo, "$(P)$(M):JogReverse") {
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))GO_CONTINUOUS_REVERSE")
+    field(SCAN, "Passive")
+}

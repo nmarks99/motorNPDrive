@@ -664,7 +664,7 @@ QWidget#centralWidget {background: rgba(187, 187, 187, 255);}
                 <enum>EPushButton::WidthAndHeight</enum>
             </property>
             <property name="channel">
-                <string>$(P)$(M):GoStepsReverse.PROC</string>
+                <string>$(P)$(M):JogReverse.PROC</string>
             </property>
             <property name="foreground">
                 <color alpha="255">
@@ -706,7 +706,7 @@ QWidget#centralWidget {background: rgba(187, 187, 187, 255);}
                 <enum>EPushButton::WidthAndHeight</enum>
             </property>
             <property name="channel">
-                <string>$(P)$(M):GoStepsForward.PROC</string>
+                <string>$(P)$(M):JogForward.PROC</string>
             </property>
             <property name="foreground">
                 <color alpha="255">

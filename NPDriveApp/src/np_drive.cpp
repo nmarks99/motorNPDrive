@@ -31,11 +31,11 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
     createParam(HOLD_POSITION_TIMEOUT_STRING, asynParamInt32, &holdPositionTimeoutIndex_);
     createParam(SET_SENSORS_OFF_STRING, asynParamInt32, &setSensorsOffIndex_);
     createParam(SET_DRIVE_CHANNELS_OFF_STRING, asynParamInt32, &setDriveChannelsOffIndex_);
-
     createParam(GO_STEPS_FORWARD_STRING, asynParamInt32, &goStepsForwardIndex_);
     createParam(GO_STEPS_REVERSE_STRING, asynParamInt32, &goStepsReverseIndex_);
     createParam(OPEN_LOOP_STEPS_STRING, asynParamInt32, &openLoopStepsIndex_);
-
+    createParam(GO_CONTINUOUS_FORWARD_STRING, asynParamInt32, &goContinuousForwardIndex_);
+    createParam(GO_CONTINUOUS_REVERSE_STRING, asynParamInt32, &goContinuousReverseIndex_);
     createParam(STOP_LIMIT_STRING, asynParamFloat64, &stopLimitIndex_);
     createParam(HOLD_POSITION_TARGET_STRING, asynParamFloat64, &holdPositionTargetIndex_);
 
@@ -290,6 +290,41 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in open loop step reverse\n");
         }
     }
+    
+
+    // FIX: json error when parsing result?
+    //
+    // else if (function == goContinuousForwardIndex_) {
+        // sprintf(this->outString_, "%s",
+                // NPDriveCmd::go_continuous_forward(
+                    // pAxis->axisIndex_,
+                    // pAxis->amplitude_,
+                    // pAxis->frequency_
+                // ).c_str());
+        // asyn_status = this->writeReadController();
+        // if (asyn_status) {
+            // goto skip;
+        // }
+        // if (not parse_json_result<bool>(this->inString_)) {
+            // asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in jog forward\n");
+        // }
+    // }
+
+    // else if (function == goContinuousReverseIndex_) {
+        // sprintf(this->outString_, "%s",
+                // NPDriveCmd::go_continuous_reverse(
+                    // pAxis->axisIndex_,
+                    // pAxis->amplitude_,
+                    // pAxis->frequency_
+                // ).c_str());
+        // asyn_status = this->writeReadController();
+        // if (asyn_status) {
+            // goto skip;
+        // }
+        // if (not parse_json_result<bool>(this->inString_)) {
+            // asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in jog reverse\n");
+        // }
+    // }
 
     // TODO: Test
     else if (function == setSensorsOffIndex_) {
