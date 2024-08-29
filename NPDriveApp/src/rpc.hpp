@@ -10,6 +10,8 @@ namespace NPDriveCmd {
         {"id", 0}
     };
 
+    std::string go_steps_forward(int channel, int steps, int amplitude, int frequency);
+    std::string go_steps_reverse(int channel, int steps, int amplitude, int frequency);
     std::string stop_motion();
     std::string get_drive_channel();
     std::string get_status_drive_busy();

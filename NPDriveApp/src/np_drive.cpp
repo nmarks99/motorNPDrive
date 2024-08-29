@@ -25,14 +25,17 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
     NPDriveMotorAxis *pAxis;
     static const char *functionName = "NPDriveMotorController::NPDriveMotorController";
 
-    std::cout << "NUM_NPDRIVE_PARAMS = " << NUM_NPDRIVE_PARAMS << std::endl;
-
     createParam(FREQUENCY_STRING, asynParamInt32, &driveFrequencyIndex_);
     createParam(AMPLITUDE_STRING, asynParamInt32, &driveAmplitudeIndex_);
     createParam(HOLD_POSITION_STRING, asynParamInt32, &holdPositionIndex_);
     createParam(HOLD_POSITION_TIMEOUT_STRING, asynParamInt32, &holdPositionTimeoutIndex_);
     createParam(SET_SENSORS_OFF_STRING, asynParamInt32, &setSensorsOffIndex_);
     createParam(SET_DRIVE_CHANNELS_OFF_STRING, asynParamInt32, &setDriveChannelsOffIndex_);
+
+    createParam(GO_STEPS_FORWARD_STRING, asynParamInt32, &goStepsForwardIndex_);
+    createParam(GO_STEPS_REVERSE_STRING, asynParamInt32, &goStepsReverseIndex_);
+    createParam(OPEN_LOOP_STEPS_STRING, asynParamInt32, &openLoopStepsIndex_);
+
     createParam(STOP_LIMIT_STRING, asynParamFloat64, &stopLimitIndex_);
     createParam(HOLD_POSITION_TARGET_STRING, asynParamFloat64, &holdPositionTargetIndex_);
 
@@ -133,17 +136,14 @@ asynStatus NPDriveMotorAxis::stop(double acceleration) {
 
 asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velocity,
                                   double max_velocity, double acceleration) {
-    
+
     asynStatus asyn_status = asynSuccess;
 
     // For now, only closed loop motion is supported through the motor record
     sprintf(pC_->outString_, "%s",
-            NPDriveCmd::go_position(
-                axisIndex_,
-                position / DRIVER_RESOLUTION,
-                this->amplitude,
-                this->frequency
-            ).c_str());
+            NPDriveCmd::go_position(axisIndex_, position / DRIVER_RESOLUTION, this->amplitude_,
+                                    this->frequency_)
+                .c_str());
     asyn_status = pC_->writeReadController();
 
     if (not parse_json_result<bool>(pC_->inString_)) {
@@ -224,21 +224,23 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
     }
 
     if (function == driveAmplitudeIndex_) {
-        pAxis->amplitude = value;
+        pAxis->amplitude_ = value;
     } else if (function == driveFrequencyIndex_) {
-        pAxis->frequency = value;
+        pAxis->frequency_ = value;
     }
 
     // TODO: Test
     else if (function == holdPositionIndex_) {
-        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Holding position %e meters for %d seconds\n",
-                  pAxis->hold_target/DRIVER_RESOLUTION, pAxis->hold_timeout);
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL,
+                  "Holding position %e meters for %d seconds\n",
+                  pAxis->hold_target_ / DRIVER_RESOLUTION, pAxis->hold_timeout_);
 
         sprintf(this->outString_, "%s",
                 NPDriveCmd::hold_position(
                     pAxis->axisIndex_,
-                    pAxis->hold_target / DRIVER_RESOLUTION,
-                    pAxis->amplitude, pAxis->hold_timeout
+                    pAxis->hold_target_ / DRIVER_RESOLUTION,
+                    pAxis->amplitude_,
+                    pAxis->hold_timeout_
                 ).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
@@ -248,7 +250,45 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error enabling hold position mode\n");
         }
     } else if (function == holdPositionTimeoutIndex_) {
-        pAxis->hold_timeout = value;
+        pAxis->hold_timeout_ = value;
+    }
+
+    else if (function == openLoopStepsIndex_) {
+        pAxis->cmd_steps_ = value;
+    }
+
+    else if (function == goStepsForwardIndex_) {
+        sprintf(this->outString_, "%s",
+                NPDriveCmd::go_steps_forward(
+                    pAxis->axisIndex_,
+                    pAxis->cmd_steps_,
+                    pAxis->amplitude_,
+                    pAxis->frequency_
+                ).c_str());
+        asyn_status = this->writeReadController();
+        if (asyn_status) {
+            goto skip;
+        }
+        if (not parse_json_result<bool>(this->inString_)) {
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in open loop step forward\n");
+        }
+    }
+
+    else if (function == goStepsReverseIndex_) {
+        sprintf(this->outString_, "%s",
+                NPDriveCmd::go_steps_reverse(
+                    pAxis->axisIndex_,
+                    pAxis->cmd_steps_,
+                    pAxis->amplitude_,
+                    pAxis->frequency_
+                ).c_str());
+        asyn_status = this->writeReadController();
+        if (asyn_status) {
+            goto skip;
+        }
+        if (not parse_json_result<bool>(this->inString_)) {
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in open loop step reverse\n");
+        }
     }
 
     // TODO: Test
@@ -298,14 +338,15 @@ asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat6
     }
 
     if (function == holdPositionTargetIndex_) {
-        pAxis->hold_target = value;
-    }
-    else if (function == stopLimitIndex_) {
+        pAxis->hold_target_ = value;
+    } else if (function == stopLimitIndex_) {
         double mres = 0.0;
         this->getDoubleParam(this->motorRecResolution_, &mres);
-        pAxis->stop_limit = (value / mres) / DRIVER_RESOLUTION;
-        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n", pAxis->stop_limit);
-        sprintf(this->outString_, "%s", NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit).c_str());
+        pAxis->stop_limit_ = (value / mres) / DRIVER_RESOLUTION;
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n",
+                  pAxis->stop_limit_);
+        sprintf(this->outString_, "%s",
+                NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit_).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
             goto skip;
@@ -325,13 +366,6 @@ skip:
     pAxis->callParamCallbacks();
     return asyn_status;
 }
-
-// asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {
-    // asynStatus asyn_status = asynSuccess;
-//
-    // callParamCallbacks();
-    // return asyn_status;
-// }
 
 // ==================
 // iosch registration

@@ -1,6 +1,20 @@
 #include "rpc.hpp"
 namespace NPDriveCmd {
 
+    std::string go_steps_forward(int channel, int steps, int amplitude, int frequency) {
+        json rpc = rpc_template;
+        rpc["method"] = "goStepsForward";
+        rpc["params"] = {channel, steps, amplitude, frequency};
+        return rpc.dump();
+    }
+
+    std::string go_steps_reverse(int channel, int steps, int amplitude, int frequency) {
+        json rpc = rpc_template;
+        rpc["method"] = "goStepsReverse";
+        rpc["params"] = {channel, steps, amplitude, frequency};
+        return rpc.dump();
+    }
+
     std::string stop_motion() {
         json rpc = rpc_template;
         rpc["method"] = "stopMotion";

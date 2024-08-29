@@ -11,6 +11,10 @@ static constexpr char HOLD_POSITION_TIMEOUT_STRING[] = "HOLD_POSITION_TIMEOUT";
 static constexpr char SET_SENSORS_OFF_STRING[] = "SET_SENSORS_OFF";
 static constexpr char SET_DRIVE_CHANNELS_OFF_STRING[] = "SET_DRIVE_CHANNELS_OFF";
 
+static constexpr char GO_STEPS_FORWARD_STRING[] = "GO_STEPS_FORWARD";
+static constexpr char GO_STEPS_REVERSE_STRING[] = "GO_STEPS_REVERSE";
+static constexpr char OPEN_LOOP_STEPS_STRING[] = "OPEN_LOOP_STEPS";
+
 class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
   public:
     NPDriveMotorAxis(class NPDriveMotorController *pC, int axisNo);
@@ -23,11 +27,13 @@ class epicsShareClass NPDriveMotorAxis : public asynMotorAxis {
   private:
     NPDriveMotorController *pC_;
     int axisIndex_;
-    int amplitude = 0;
-    int frequency = 0;
-    double hold_target = 0.0;
-    int hold_timeout = 0;
-    double stop_limit = 0.0;
+    int amplitude_ = 0;
+    int frequency_ = 0;
+    double hold_target_ = 0.0;
+    int hold_timeout_ = 0;
+    double stop_limit_ = 0.0;
+    int cmd_steps_ = 0; 
+    
 
     friend class NPDriveMotorController;
 };
@@ -59,6 +65,9 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     int holdPositionTimeoutIndex_;
     int setSensorsOffIndex_;
     int setDriveChannelsOffIndex_;
+    int goStepsForwardIndex_;
+    int goStepsReverseIndex_;
+    int openLoopStepsIndex_;
 #define LAST_NPDRIVE_PARAM setDriveChannelsOffIndex_
 
     friend class NPDriveMotorAxis;

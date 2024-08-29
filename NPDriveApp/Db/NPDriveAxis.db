@@ -44,3 +44,21 @@ record(ao, "$(P)$(M):HoldPosition:Timeout") {
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))HOLD_POSITION_TIMEOUT")
     field(SCAN, "Passive")
 }
+
+record(bo, "$(P)$(M):GoStepsForward") {
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))GO_STEPS_FORWARD")
+    field(SCAN, "Passive")
+}
+
+record(bo, "$(P)$(M):GoStepsReverse") {
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))GO_STEPS_REVERSE")
+    field(SCAN, "Passive")
+}
+
+record(ao, "$(P)$(M):OpenLoopSteps") {
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))OPEN_LOOP_STEPS")
+    field(SCAN, "Passive")
+}
