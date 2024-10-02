@@ -1,0 +1,14 @@
+# ### NPDrive.iocsh ###
+
+#- ###################################################
+#- INSTANCE         - Name of asyn port to create
+#- IP_ADDR          - IP address of controller
+#- ###################################################
+
+# Configure asyn port
+drvAsynIPPortConfigure("$(INSTANCE)_ETH", "$(IP_ADDR):6002",0,0,0)
+asynOctetSetOutputEos("$(INSTANCE)_ETH",0,"\n")
+asynOctetSetInputEos("$(INSTANCE)_ETH",0,"}\n")
+
+# Configure NP-Drive controller
+NPDriveMotorCreateController("$(INSTANCE)", "$(INSTANCE)_ETH", 3, 250, 1000)

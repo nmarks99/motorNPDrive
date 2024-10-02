@@ -8,6 +8,7 @@ dbd/
 html/
 include/
 lib/
+iocsh/
 templates/
 cdCommands
 envPaths
@@ -21,3 +22,4 @@ scan1Menu.sav
 .iocsh_history
 compile_commands.json
 .loglogin
+
