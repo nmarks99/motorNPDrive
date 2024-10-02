@@ -98,6 +98,7 @@ NPDriveMotorAxis::NPDriveMotorAxis(NPDriveMotorController *pC, int axisNo)
               axisIndex_);
 
     // Gain Support is required for setClosedLoop to be called
+    // ...although we don't actually implement setClosedLoop for anything here
     setIntegerParam(pC->motorStatusHasEncoder_, 1);
     setIntegerParam(pC->motorStatusGainSupport_, 1);
 
@@ -139,16 +140,15 @@ asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velo
 
     asynStatus asyn_status = asynSuccess;
 
-    // For now, only closed loop motion is supported through the motor record
+    // Only closed loop motion is supported through the motor record
+    // additional PVs are provided for commanding open loop steps
     sprintf(pC_->outString_, "%s",
             NPDriveCmd::go_position(axisIndex_, position / DRIVER_RESOLUTION, this->amplitude_,
-                                    this->frequency_)
-                .c_str());
+                                    this->frequency_).c_str());
     asyn_status = pC_->writeReadController();
 
     if (not parse_json_result<bool>(pC_->inString_)) {
         asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, "Move command failed\n");
-        std::cout << "Read: " << pC_->inString_ << std::endl;
     }
 
     callParamCallbacks();
@@ -229,20 +229,20 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
         pAxis->frequency_ = value;
     }
 
-    // TODO: Test
     else if (function == holdPositionIndex_) {
         asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL,
-                  "Holding position %e meters for %d seconds\n",
-                  pAxis->hold_target_ / DRIVER_RESOLUTION, pAxis->hold_timeout_);
+                  "Holding axis %d at %e meters for %d seconds\n", pAxis->axisIndex_,
+                  pAxis->hold_target_, pAxis->hold_timeout_);
 
         sprintf(this->outString_, "%s",
                 NPDriveCmd::hold_position(
                     pAxis->axisIndex_,
-                    pAxis->hold_target_ / DRIVER_RESOLUTION,
+                    pAxis->hold_target_,
                     pAxis->amplitude_,
                     pAxis->hold_timeout_
                 ).c_str());
         asyn_status = this->writeReadController();
+
         if (asyn_status) {
             goto skip;
         }
@@ -292,7 +292,8 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
     }
     
 
-    // FIX: json error when parsing result?
+    // FIX: This isn't working yet, JSON error when parsing result
+    // Do we even need jog functionality?
     //
     // else if (function == goContinuousForwardIndex_) {
         // sprintf(this->outString_, "%s",
@@ -309,7 +310,6 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
             // asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in jog forward\n");
         // }
     // }
-
     // else if (function == goContinuousReverseIndex_) {
         // sprintf(this->outString_, "%s",
                 // NPDriveCmd::go_continuous_reverse(
@@ -372,16 +372,17 @@ asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat6
         return asynError;
     }
 
+    double mres = 0.0;
+    this->getDoubleParam(this->motorRecResolution_, &mres);
+
     if (function == holdPositionTargetIndex_) {
-        pAxis->hold_target_ = value;
-    } else if (function == stopLimitIndex_) {
-        double mres = 0.0;
-        this->getDoubleParam(this->motorRecResolution_, &mres);
-        pAxis->stop_limit_ = (value / mres) / DRIVER_RESOLUTION;
-        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n",
-                  pAxis->stop_limit_);
-        sprintf(this->outString_, "%s",
-                NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit_).c_str());
+        pAxis->hold_target_ = (value / mres) / DRIVER_RESOLUTION; // convert from user units to meters
+    }
+
+    else if (function == stopLimitIndex_) {
+        pAxis->stop_limit_ = (value / mres) / DRIVER_RESOLUTION; // convert from user units to meters
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n", pAxis->stop_limit_);
+        sprintf(this->outString_, "%s", NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit_).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
             goto skip;

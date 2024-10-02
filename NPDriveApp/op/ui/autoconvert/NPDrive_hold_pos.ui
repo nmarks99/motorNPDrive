@@ -4,8 +4,8 @@
 <widget class="QMainWindow" name="MainWindow">
     <property name="geometry">
         <rect>
-            <x>1061</x>
-            <y>888</y>
+            <x>1021</x>
+            <y>856</y>
             <width>295</width>
             <height>215</height>
         </rect>
@@ -668,9 +668,9 @@ caMenu{
         <widget class="caRelatedDisplay" name="caRelatedDisplay_0">
             <property name="geometry">
                 <rect>
-                    <x>230</x>
+                    <x>240</x>
                     <y>190</y>
-                    <width>60</width>
+                    <width>50</width>
                     <height>20</height>
                 </rect>
             </property>
@@ -754,7 +754,7 @@ caMenu{
                 <rect>
                     <x>200</x>
                     <y>40</y>
-                    <width>80</width>
+                    <width>35</width>
                     <height>18</height>
                 </rect>
             </property>
@@ -940,7 +940,7 @@ caMenu{
             </property>
             <property name="geometry">
                 <rect>
-                    <x>210</x>
+                    <x>215</x>
                     <y>0</y>
                     <width>75</width>
                     <height>18</height>
@@ -1034,6 +1034,42 @@ caMenu{
                 <enum>decimal</enum>
             </property>
         </widget>
+        <widget class="caLabel" name="caLabel_9">
+            <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="foreground">
+                <color alpha="255">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="background">
+                <color alpha="0">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="text">
+                <string>Hz</string>
+            </property>
+            <property name="fontScaleMode">
+                <enum>ESimpleLabel::WidthAndHeight</enum>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>195</x>
+                    <y>140</y>
+                    <width>30</width>
+                    <height>18</height>
+                </rect>
+            </property>
+            <property name="alignment">
+                <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+        </widget>
         <zorder>caLabel_0</zorder>
         <zorder>caLabel_1</zorder>
         <zorder>caLabel_2</zorder>
@@ -1046,6 +1082,7 @@ caMenu{
         <zorder>caLabel_6</zorder>
         <zorder>caLabel_7</zorder>
         <zorder>caLabel_8</zorder>
+        <zorder>caLabel_9</zorder>
         <zorder>caTextEntry_0</zorder>
         <zorder>caLineEdit_0</zorder>
         <zorder>caMessageButton_0</zorder>

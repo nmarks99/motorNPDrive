@@ -5,8 +5,8 @@ file {
 }
 display {
 	object {
-		x=1061
-		y=888
+		x=1021
+		y=856
 		width=295
 		height=215
 	}
@@ -278,9 +278,9 @@ text {
 }
 "related display" {
 	object {
-		x=230
+		x=240
 		y=190
-		width=60
+		width=50
 		height=20
 	}
 	display[0] {
@@ -327,7 +327,7 @@ rectangle {
 	object {
 		x=200
 		y=40
-		width=80
+		width=35
 		height=18
 	}
 	monitor {
@@ -381,7 +381,7 @@ text {
 }
 text {
 	object {
-		x=210
+		x=215
 		y=0
 		width=75
 		height=18
@@ -421,4 +421,17 @@ text {
 	}
 	limits {
 	}
+}
+text {
+	object {
+		x=195
+		y=140
+		width=30
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+	textix="Hz"
 }
