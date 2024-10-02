@@ -5,10 +5,10 @@ file {
 }
 display {
 	object {
-		x=1081
-		y=904
-		width=294
-		height=216
+		x=1061
+		y=888
+		width=295
+		height=215
 	}
 	clr=14
 	bclr=4
@@ -279,7 +279,7 @@ text {
 "related display" {
 	object {
 		x=230
-		y=185
+		y=190
 		width=60
 		height=20
 	}

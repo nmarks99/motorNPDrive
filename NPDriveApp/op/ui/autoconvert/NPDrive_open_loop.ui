@@ -4,10 +4,10 @@
 <widget class="QMainWindow" name="MainWindow">
     <property name="geometry">
         <rect>
-            <x>639</x>
-            <y>393</y>
-            <width>249</width>
-            <height>189</height>
+            <x>583</x>
+            <y>855</y>
+            <width>315</width>
+            <height>145</height>
         </rect>
     </property>
     <property name="styleSheet">
@@ -113,10 +113,10 @@ caMenu{
         <widget class="caLineEdit" name="caLineEdit_0">
             <property name="geometry">
                 <rect>
-                    <x>60</x>
-                    <y>125</y>
+                    <x>85</x>
+                    <y>30</y>
                     <width>100</width>
-                    <height>18</height>
+                    <height>20</height>
                 </rect>
             </property>
             <property name="fontScaleMode">
@@ -167,8 +167,8 @@ caMenu{
         <widget class="caTextEntry" name="caTextEntry_0">
             <property name="geometry">
                 <rect>
-                    <x>60</x>
-                    <y>65</y>
+                    <x>85</x>
+                    <y>90</y>
                     <width>100</width>
                     <height>25</height>
                 </rect>
@@ -241,10 +241,10 @@ caMenu{
             </property>
             <property name="geometry">
                 <rect>
-                    <x>0</x>
-                    <y>70</y>
+                    <x>5</x>
+                    <y>95</y>
                     <width>75</width>
-                    <height>18</height>
+                    <height>19</height>
                 </rect>
             </property>
             <property name="alignment">
@@ -277,10 +277,10 @@ caMenu{
             </property>
             <property name="geometry">
                 <rect>
-                    <x>0</x>
-                    <y>125</y>
+                    <x>5</x>
+                    <y>30</y>
                     <width>75</width>
-                    <height>18</height>
+                    <height>19</height>
                 </rect>
             </property>
             <property name="alignment">
@@ -290,8 +290,8 @@ caMenu{
         <widget class="caTextEntry" name="caTextEntry_1">
             <property name="geometry">
                 <rect>
-                    <x>60</x>
-                    <y>90</y>
+                    <x>85</x>
+                    <y>115</y>
                     <width>100</width>
                     <height>25</height>
                 </rect>
@@ -364,10 +364,10 @@ caMenu{
             </property>
             <property name="geometry">
                 <rect>
-                    <x>0</x>
-                    <y>95</y>
+                    <x>5</x>
+                    <y>120</y>
                     <width>75</width>
-                    <height>18</height>
+                    <height>19</height>
                 </rect>
             </property>
             <property name="alignment">
@@ -377,9 +377,9 @@ caMenu{
         <widget class="caRelatedDisplay" name="caRelatedDisplay_0">
             <property name="geometry">
                 <rect>
-                    <x>185</x>
-                    <y>160</y>
-                    <width>60</width>
+                    <x>250</x>
+                    <y>120</y>
+                    <width>59</width>
                     <height>20</height>
                 </rect>
             </property>
@@ -419,10 +419,10 @@ caMenu{
         <widget class="caLineEdit" name="caLineEdit_1">
             <property name="geometry">
                 <rect>
-                    <x>160</x>
-                    <y>125</y>
+                    <x>195</x>
+                    <y>30</y>
                     <width>40</width>
-                    <height>18</height>
+                    <height>20</height>
                 </rect>
             </property>
             <property name="fontScaleMode">
@@ -617,8 +617,8 @@ caMenu{
         <widget class="caMessageButton" name="caMessageButton_0">
             <property name="geometry">
                 <rect>
-                    <x>178</x>
-                    <y>33</y>
+                    <x>193</x>
+                    <y>58</y>
                     <width>25</width>
                     <height>20</height>
                 </rect>
@@ -656,8 +656,8 @@ caMenu{
         <widget class="caMessageButton" name="caMessageButton_1">
             <property name="geometry">
                 <rect>
-                    <x>76</x>
-                    <y>33</y>
+                    <x>91</x>
+                    <y>58</y>
                     <width>25</width>
                     <height>20</height>
                 </rect>
@@ -695,8 +695,8 @@ caMenu{
         <widget class="caTextEntry" name="caTextEntry_2">
             <property name="geometry">
                 <rect>
-                    <x>102</x>
-                    <y>33</y>
+                    <x>117</x>
+                    <y>58</y>
                     <width>76</width>
                     <height>20</height>
                 </rect>
@@ -746,8 +746,8 @@ caMenu{
         <widget class="caMessageButton" name="caMessageButton_2">
             <property name="geometry">
                 <rect>
-                    <x>38</x>
-                    <y>33</y>
+                    <x>53</x>
+                    <y>58</y>
                     <width>35</width>
                     <height>20</height>
                 </rect>
@@ -788,8 +788,8 @@ caMenu{
         <widget class="caMessageButton" name="caMessageButton_3">
             <property name="geometry">
                 <rect>
-                    <x>206</x>
-                    <y>33</y>
+                    <x>221</x>
+                    <y>58</y>
                     <width>35</width>
                     <height>20</height>
                 </rect>
@@ -833,8 +833,8 @@ caMenu{
             </property>
             <property name="geometry">
                 <rect>
-                    <x>35</x>
-                    <y>30</y>
+                    <x>50</x>
+                    <y>55</y>
                     <width>209</width>
                     <height>26</height>
                 </rect>
@@ -889,10 +889,10 @@ caMenu{
             </property>
             <property name="geometry">
                 <rect>
-                    <x>0</x>
-                    <y>35</y>
-                    <width>75</width>
-                    <height>18</height>
+                    <x>5</x>
+                    <y>60</y>
+                    <width>45</width>
+                    <height>19</height>
                 </rect>
             </property>
             <property name="alignment">
@@ -902,8 +902,8 @@ caMenu{
         <widget class="caMessageButton" name="caMessageButton_4">
             <property name="geometry">
                 <rect>
-                    <x>200</x>
-                    <y>65</y>
+                    <x>270</x>
+                    <y>55</y>
                     <width>40</width>
                     <height>25</height>
                 </rect>

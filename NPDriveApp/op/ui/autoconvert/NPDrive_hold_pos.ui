@@ -4,10 +4,10 @@
 <widget class="QMainWindow" name="MainWindow">
     <property name="geometry">
         <rect>
-            <x>1081</x>
-            <y>904</y>
-            <width>294</width>
-            <height>216</height>
+            <x>1061</x>
+            <y>888</y>
+            <width>295</width>
+            <height>215</height>
         </rect>
     </property>
     <property name="styleSheet">
@@ -669,7 +669,7 @@ caMenu{
             <property name="geometry">
                 <rect>
                     <x>230</x>
-                    <y>185</y>
+                    <y>190</y>
                     <width>60</width>
                     <height>20</height>
                 </rect>
