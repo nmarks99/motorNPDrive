@@ -1,7 +1,7 @@
 record(ao, "$(P)$(M):Amplitude") {
     field(DTYP, "asynInt32")
     field(PINI, "1")
-    field(VAL, "300")
+    field(VAL, "100")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))AMPLITUDE")
     field(DRVH,"300")
     field(DRVL,"10")
@@ -11,7 +11,7 @@ record(ao, "$(P)$(M):Amplitude") {
 record(ao, "$(P)$(M):Frequency") {
     field(DTYP, "asynInt32")
     field(PINI, "1")
-    field(VAL, "1500")
+    field(VAL, "1000")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))FREQUENCY")
     field(DRVH,"4000")
     field(DRVL,"100")
@@ -22,6 +22,7 @@ record(ao,"$(P)$(M):StopLimit") {
     field(DTYP, "asynFloat64")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT=1))STOP_LIMIT")
     field(SCAN, "Passive")
+    field(VAL, "$(STLM=0.0)")
     field(PREC, "4")
 }
 

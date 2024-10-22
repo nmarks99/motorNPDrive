@@ -16,8 +16,8 @@ pattern
 file "$(MOTOR_NPDRIVE)/db/NPDriveAxis.db"
 {
 pattern
-{M,   PORT,     ADDR}
-{m1,  NPDrive1,    0}
-{m2,  NPDrive1,    1}
-{m3,  NPDrive1,    2}
+{M,   PORT,     ADDR, STLM}
+{m1,  NPDrive1,    0,  0.1}
+{m2,  NPDrive1,    1,  0.1}
+{m3,  NPDrive1,    2,  0.1}
 }

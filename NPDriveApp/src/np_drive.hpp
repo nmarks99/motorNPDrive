@@ -62,6 +62,7 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
   private:
     int motion_done_ = 1;
     int num_axes_ = 0;
+    int drive_channel_ = 0;
 
   protected:
 #define FIRST_NPDRIVE_PARAM driveFrequencyIndex_
