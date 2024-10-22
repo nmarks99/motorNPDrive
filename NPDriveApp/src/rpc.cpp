@@ -53,12 +53,17 @@ namespace NPDriveCmd {
         return rpc.dump();
     } 
 
-
-
-    std::string get_position(int axis) {
+    std::string get_position(int channel) {
         json rpc = rpc_template;
         rpc["method"] = "getPosition";
-        rpc["params"] = {axis};
+        rpc["params"] = {channel};
+        return rpc.dump();
+    }
+
+    std::string set_drive_channel(int channel) {
+        json rpc = rpc_template;
+        rpc["method"] = "setDriveChannel";
+        rpc["params"] = {channel};
         return rpc.dump();
     }
 

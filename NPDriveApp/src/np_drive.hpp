@@ -57,6 +57,11 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     NPDriveMotorAxis *getAxis(int axisNo);
     asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
     asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
+    asynStatus poll();
+
+  private:
+    int motion_done_ = 1;
+    int num_axes_ = 0;
 
   protected:
 #define FIRST_NPDRIVE_PARAM driveFrequencyIndex_

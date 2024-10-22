@@ -1,5 +1,5 @@
 # Connect to controller
-iocshLoad("$(MOTOR_NPDRIVE)/iocsh/NPDrive.iocsh", "INSTANCE=NPDrive1,IP_ADDR=164.54.115.52")
+iocshLoad("$(MOTOR_NPDRIVE)/iocsh/NPDrive.iocsh", "INSTANCE=NPDrive1,IP_ADDR=164.54.115.52,NUM_AXES=3")
 
 # Load motor records and PVs for axis specific settings
 dbLoadTemplate("NPDrive.substitutions", "P=$(PREFIX)")

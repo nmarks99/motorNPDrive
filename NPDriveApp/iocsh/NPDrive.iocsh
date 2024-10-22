@@ -3,6 +3,16 @@
 #- ###################################################
 #- INSTANCE         - Name of asyn port to create
 #- IP_ADDR          - IP address of controller
+#
+#- NUM_AXES         - Optional: Number of axes to create for this controller
+#-                    Default: 3
+#-
+#- MOVING_POLL      - Optional: Moving poll period (s)
+#-                    Default: 250ms
+#- 
+#- IDLE_POLL        - Optional: Idle poll period (s)
+#-                    Default: 1000ms
+#-
 #- ###################################################
 
 # Configure asyn port
@@ -11,4 +21,4 @@ asynOctetSetOutputEos("$(INSTANCE)_ETH",0,"\n")
 asynOctetSetInputEos("$(INSTANCE)_ETH",0,"}\n")
 
 # Configure NP-Drive controller
-NPDriveMotorCreateController("$(INSTANCE)", "$(INSTANCE)_ETH", 3, 250, 1000)
+NPDriveMotorCreateController("$(INSTANCE)", "$(INSTANCE)_ETH", "$(NUM_AXES=3)", "$(MOVING_POLL=250)", "$(IDLE_POLL=1000)")

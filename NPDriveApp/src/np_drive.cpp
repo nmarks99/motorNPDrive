@@ -18,7 +18,8 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
                           0, // No additional callback interfaces beyond those in base class
                           ASYN_CANBLOCK | ASYN_MULTIDEVICE,
                           1,    // autoconnect
-                          0, 0) // Default priority and stack size
+                          0, 0), // Default priority and stack size
+                          num_axes_(numAxes)
 {
     asynStatus status;
     int axis;
@@ -61,6 +62,7 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
     std::cout << "movingPollPeriod = " << movingPollPeriod << std::endl;
     std::cout << "idlePollPeriod = " << idlePollPeriod << std::endl;
     startPoller(movingPollPeriod, idlePollPeriod, 2);
+
 }
 
 extern "C" int NPDriveMotorCreateController(const char *portName, const char *NPDriveMotorPortName,
@@ -98,7 +100,6 @@ NPDriveMotorAxis::NPDriveMotorAxis(NPDriveMotorController *pC, int axisNo)
               axisIndex_);
 
     // Gain Support is required for setClosedLoop to be called
-    // ...although we don't actually implement setClosedLoop for anything here
     setIntegerParam(pC->motorStatusHasEncoder_, 1);
     setIntegerParam(pC->motorStatusGainSupport_, 1);
 
@@ -143,8 +144,11 @@ asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velo
     // Only closed loop motion is supported through the motor record
     // additional PVs are provided for commanding open loop steps
     sprintf(pC_->outString_, "%s",
-            NPDriveCmd::go_position(axisIndex_, position / DRIVER_RESOLUTION, this->amplitude_,
-                                    this->frequency_).c_str());
+            NPDriveCmd::go_position(
+                axisIndex_,
+                position / DRIVER_RESOLUTION,
+                this->amplitude_,
+                this->frequency_).c_str());
     asyn_status = pC_->writeReadController();
 
     if (not parse_json_result<bool>(pC_->inString_)) {
@@ -155,62 +159,120 @@ asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velo
     return asyn_status;
 }
 
+asynStatus NPDriveMotorController::poll() {
+    asynStatus asyn_status = asynStatus::asynSuccess;
+    int open_loop_done;
+    int closed_loop_done;
+    int drive_channel;
+
+    // Check if open-loop command is done
+    sprintf(this->outString_, "%s", NPDriveCmd::get_status_drive_busy().c_str());
+    asyn_status = this->writeReadController();
+    if (asyn_status) {
+        goto skip;
+    }
+    open_loop_done = not parse_json_result<int>(this->inString_);
+
+    // Check if closed-loop command is done
+    sprintf(this->outString_, "%s", NPDriveCmd::get_status_positioning().c_str());
+    asyn_status = this->writeReadController();
+    if (asyn_status) {
+        goto skip;
+    }
+    closed_loop_done = not parse_json_result<int>(this->inString_);
+
+    // considered done when both open and closed loop done
+    this->motion_done_ = (open_loop_done & closed_loop_done);
+
+    // Check if drive overloaded
+    sprintf(this->outString_, "%s", NPDriveCmd::get_status_drive_overload().c_str());
+    asyn_status = this->writeReadController();
+    if (asyn_status) {
+        goto skip;
+    }
+    if (parse_json_result<bool>(this->inString_)) {
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Drive overloaded!\n");
+    }
+    
+    // Get drive channel
+    sprintf(this->outString_, "%s", NPDriveCmd::get_drive_channel().c_str());
+    asyn_status = this->writeReadController();
+    if (asyn_status) {
+        goto skip;
+    }
+    drive_channel = parse_json_result<int>(this->inString_);
+    // setIntegerParam(this->motorStatusPowerOn_, 1); // should be in axis poller?
+
+skip:
+    setIntegerParam(this->motorStatusProblem_, asyn_status ? 1 : 0);
+    callParamCallbacks();
+    return asyn_status ? asynError : asynSuccess;
+}
+
+
 asynStatus NPDriveMotorAxis::poll(bool *moving) {
     asynStatus asyn_status = asynSuccess;
     long long_position_nm = 0;
     double position_m = 0.0;
-    int open_loop_done = 1;
-    int closed_loop_done = 1;
-    int done = 1;
 
-    // Read axis position
-    sprintf(pC_->outString_, "%s", NPDriveCmd::get_position(axisIndex_).c_str());
-    asyn_status = pC_->writeReadController();
-    if (asyn_status) {
-        goto skip;
+    // Only poll position here if enabled (CNEN==1)
+    int enabled = 0;
+    // pC_->getIntegerParam(this->axisNo_, pC_->motorClosedLoop_, &enabled);
+    if (axisIndex_ == 1) {
+        enabled = 1;
     }
-    position_m = parse_json_result<double>(pC_->inString_); // meters
-    long_position_nm = DRIVER_RESOLUTION * position_m;      // convert to nanometer "steps"
-    setDoubleParam(pC_->motorPosition_, long_position_nm);  // RRBV [nanometers]
-    setDoubleParam(pC_->motorEncoderPosition_, long_position_nm);
 
-    // Check if open-loop command is done
-    sprintf(pC_->outString_, "%s", NPDriveCmd::get_status_drive_busy().c_str());
-    asyn_status = pC_->writeReadController();
-    if (asyn_status) {
-        goto skip;
+    if (enabled) {
+        // Read axis position for the enabled axis
+        sprintf(pC_->outString_, "%s", NPDriveCmd::get_position(axisIndex_).c_str());
+        asyn_status = pC_->writeReadController();
+        if (asyn_status) {
+            goto skip;
+        }
+        position_m = parse_json_result<double>(pC_->inString_); // meters
+        long_position_nm = DRIVER_RESOLUTION * position_m;      // convert to nanometer "steps"
+        setDoubleParam(pC_->motorPosition_, long_position_nm);  // RRBV [nanometers]
+        setDoubleParam(pC_->motorEncoderPosition_, long_position_nm);
     }
-    open_loop_done = not parse_json_result<int>(pC_->inString_);
-
-    // Check if closed-loop command is done
-    sprintf(pC_->outString_, "%s", NPDriveCmd::get_status_positioning().c_str());
-    asyn_status = pC_->writeReadController();
-    if (asyn_status) {
-        goto skip;
-    }
-    closed_loop_done = not parse_json_result<int>(pC_->inString_);
 
     // done when both closed and open loop processes are done
-    done = (open_loop_done & closed_loop_done);
-    setIntegerParam(pC_->motorStatusDone_, done);
-    setIntegerParam(pC_->motorStatusMoving_, not done);
-    *moving = not done;
-
-    // Check if drive overloaded
-    sprintf(pC_->outString_, "%s", NPDriveCmd::get_status_drive_overload().c_str());
-    asyn_status = pC_->writeReadController();
-    if (asyn_status) {
-        goto skip;
-    }
-    if (parse_json_result<bool>(pC_->inString_)) {
-        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, "Drive overloaded!\n");
-    }
+    setIntegerParam(pC_->motorStatusDone_, pC_->motion_done_);
+    setIntegerParam(pC_->motorStatusMoving_, not pC_->motion_done_);
+    *moving = not pC_->motion_done_;
 
 skip:
     setIntegerParam(pC_->motorStatusProblem_, asyn_status ? 1 : 0);
     callParamCallbacks();
     return asyn_status ? asynError : asynSuccess;
 }
+
+
+// Used to enable/disable axes. Only 1 can be enabled at a time
+// asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {
+    // asynStatus asyn_status = asynSuccess;
+//
+//
+    // printf("Set closed loop called with value = %d\n", closedLoop);
+    //
+    // // if (closedLoop) {
+        // // printf("Enable Axis %d\n", this->axisNo_);
+        // // for (int i = 0; i < pC_->num_axes_; i++) {
+            // // if (i != this->axisNo_) {
+                // // printf("Setting CNEN 0 for axis %d\n", i);
+                // // pC_->setIntegerParam(this->axisNo_, pC_->motorClosedLoop_, 0);
+            // // } else {
+                // // printf("Setting CNEN 1 for axis %d\n", i);
+                // // pC_->setIntegerParam(this->axisNo_, pC_->motorClosedLoop_, 1);
+            // // }
+        // // }
+    // // } else {
+        // // printf("Disable Axis %d\n", this->axisNo_);
+        // // pC_->setIntegerParam(this->axisNo_, pC_->motorClosedLoop_, 0);
+    // // }
+//
+    // callParamCallbacks();
+    // return asyn_status;
+// }
 
 asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 
@@ -291,41 +353,6 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
         }
     }
     
-
-    // FIX: This isn't working yet, JSON error when parsing result
-    // Do we even need jog functionality?
-    //
-    // else if (function == goContinuousForwardIndex_) {
-        // sprintf(this->outString_, "%s",
-                // NPDriveCmd::go_continuous_forward(
-                    // pAxis->axisIndex_,
-                    // pAxis->amplitude_,
-                    // pAxis->frequency_
-                // ).c_str());
-        // asyn_status = this->writeReadController();
-        // if (asyn_status) {
-            // goto skip;
-        // }
-        // if (not parse_json_result<bool>(this->inString_)) {
-            // asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in jog forward\n");
-        // }
-    // }
-    // else if (function == goContinuousReverseIndex_) {
-        // sprintf(this->outString_, "%s",
-                // NPDriveCmd::go_continuous_reverse(
-                    // pAxis->axisIndex_,
-                    // pAxis->amplitude_,
-                    // pAxis->frequency_
-                // ).c_str());
-        // asyn_status = this->writeReadController();
-        // if (asyn_status) {
-            // goto skip;
-        // }
-        // if (not parse_json_result<bool>(this->inString_)) {
-            // asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in jog reverse\n");
-        // }
-    // }
-
     // TODO: Test
     else if (function == setSensorsOffIndex_) {
         asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting all sensors off\n");
