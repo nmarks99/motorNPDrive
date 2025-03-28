@@ -79,7 +79,7 @@ class epicsShareClass NPDriveMotorController : public asynMotorController {
     int openLoopStepsIndex_;
     int goContinuousForwardIndex_;
     int goContinuousReverseIndex_;
-#define LAST_NPDRIVE_PARAM setDriveChannelsOffIndex_
+#define LAST_NPDRIVE_PARAM goContinuousReverseIndex_
 
     friend class NPDriveMotorAxis;
 };
