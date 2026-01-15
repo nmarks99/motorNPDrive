@@ -17,10 +17,9 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
                           0, // No additional interfaces beyond the base class
                           0, // No additional callback interfaces beyond those in base class
                           ASYN_CANBLOCK | ASYN_MULTIDEVICE,
-                          1,    // autoconnect
+                          1,     // autoconnect
                           0, 0), // Default priority and stack size
-                          num_axes_(numAxes)
-{
+      num_axes_(numAxes) {
     asynStatus status;
     int axis;
     NPDriveMotorAxis *pAxis;
@@ -62,7 +61,6 @@ NPDriveMotorController::NPDriveMotorController(const char *portName,
     std::cout << "movingPollPeriod = " << movingPollPeriod << std::endl;
     std::cout << "idlePollPeriod = " << idlePollPeriod << std::endl;
     startPoller(movingPollPeriod, idlePollPeriod, 2);
-
 }
 
 extern "C" int NPDriveMotorCreateController(const char *portName, const char *NPDriveMotorPortName,
@@ -117,25 +115,28 @@ NPDriveMotorAxis::NPDriveMotorAxis(NPDriveMotorController *pC, int axisNo)
     sprintf(pC_->outString_, "%s", NPDriveCmd::get_position(axisIndex_).c_str());
     asyn_status = pC_->writeReadController();
     if (asyn_status) {
-        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "Error getting initial position of axis %d\n", axisIndex_);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "Error getting initial position of axis %d\n",
+                  axisIndex_);
     } else {
         double position_m = parse_json_result<double>(pC_->inString_); // meters
-        long long_position_nm = DRIVER_RESOLUTION * position_m;      // convert to nanometer "steps"
+        long long_position_nm = DRIVER_RESOLUTION * position_m; // convert to nanometer "steps"
         setDoubleParam(pC_->motorPosition_, long_position_nm);  // RRBV [nanometers]
         setDoubleParam(pC_->motorEncoderPosition_, long_position_nm);
     }
-    
+
     // Turn sensors and drives off after reading initial positions
     if (axisIndex_ == pC_->num_axes_) {
         sprintf(pC_->outString_, "%s", NPDriveCmd::set_sensors_off().c_str());
         asyn_status = pC_->writeReadController();
         if (asyn_status) {
-            asynPrint(pasynUser_, ASYN_TRACE_ERROR, "Error setting sensors off after getting initial positions\n");
+            asynPrint(pasynUser_, ASYN_TRACE_ERROR,
+                      "Error setting sensors off after getting initial positions\n");
         }
         sprintf(pC_->outString_, "%s", NPDriveCmd::set_drive_channels_off().c_str());
         asyn_status = pC_->writeReadController();
         if (asyn_status) {
-            asynPrint(pasynUser_, ASYN_TRACE_ERROR, "Error setting drives off after getting initial positions\n");
+            asynPrint(pasynUser_, ASYN_TRACE_ERROR,
+                      "Error setting drives off after getting initial positions\n");
         }
     }
 
@@ -172,11 +173,8 @@ asynStatus NPDriveMotorAxis::move(double position, int relative, double min_velo
     // Only closed loop motion is supported through the motor record
     // additional PVs are provided for commanding open loop steps
     sprintf(pC_->outString_, "%s",
-            NPDriveCmd::go_position(
-                axisIndex_,
-                position / DRIVER_RESOLUTION,
-                this->amplitude_,
-                this->frequency_).c_str());
+            NPDriveCmd::go_position(axisIndex_, position / DRIVER_RESOLUTION, this->amplitude_,
+                                    this->frequency_).c_str());
     asyn_status = pC_->writeReadController();
 
     if (not parse_json_result<bool>(pC_->inString_)) {
@@ -236,7 +234,6 @@ skip:
     return asyn_status ? asynError : asynSuccess;
 }
 
-
 asynStatus NPDriveMotorAxis::poll(bool *moving) {
     asynStatus asyn_status = asynSuccess;
     long long_position_nm = 0;
@@ -264,16 +261,11 @@ asynStatus NPDriveMotorAxis::poll(bool *moving) {
         *moving = 0;
     }
 
-
 skip:
     setIntegerParam(pC_->motorStatusProblem_, asyn_status ? 1 : 0);
     callParamCallbacks();
     return asyn_status ? asynError : asynSuccess;
 }
-
-
-// asynStatus NPDriveMotorAxis::setClosedLoop(bool closedLoop) {
-// }
 
 asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 
@@ -298,12 +290,8 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
                   pAxis->hold_target_, pAxis->hold_timeout_);
 
         sprintf(this->outString_, "%s",
-                NPDriveCmd::hold_position(
-                    pAxis->axisIndex_,
-                    pAxis->hold_target_,
-                    pAxis->amplitude_,
-                    pAxis->hold_timeout_
-                ).c_str());
+                NPDriveCmd::hold_position(pAxis->axisIndex_, pAxis->hold_target_, pAxis->amplitude_,
+                                          pAxis->hold_timeout_).c_str());
         asyn_status = this->writeReadController();
 
         if (asyn_status) {
@@ -322,12 +310,8 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
     else if (function == goStepsForwardIndex_) {
         sprintf(this->outString_, "%s",
-                NPDriveCmd::go_steps_forward(
-                    pAxis->axisIndex_,
-                    pAxis->cmd_steps_,
-                    pAxis->amplitude_,
-                    pAxis->frequency_
-                ).c_str());
+                NPDriveCmd::go_steps_forward(pAxis->axisIndex_, pAxis->cmd_steps_,
+                                             pAxis->amplitude_, pAxis->frequency_).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
             goto skip;
@@ -339,12 +323,8 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
 
     else if (function == goStepsReverseIndex_) {
         sprintf(this->outString_, "%s",
-                NPDriveCmd::go_steps_reverse(
-                    pAxis->axisIndex_,
-                    pAxis->cmd_steps_,
-                    pAxis->amplitude_,
-                    pAxis->frequency_
-                ).c_str());
+                NPDriveCmd::go_steps_reverse(pAxis->axisIndex_, pAxis->cmd_steps_,
+                                             pAxis->amplitude_, pAxis->frequency_).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
             goto skip;
@@ -353,7 +333,7 @@ asynStatus NPDriveMotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
             asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "Error in open loop step reverse\n");
         }
     }
-    
+
     // TODO: Test
     else if (function == setSensorsOffIndex_) {
         asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting all sensors off\n");
@@ -404,13 +384,17 @@ asynStatus NPDriveMotorController::writeFloat64(asynUser *pasynUser, epicsFloat6
     this->getDoubleParam(this->motorRecResolution_, &mres);
 
     if (function == holdPositionTargetIndex_) {
-        pAxis->hold_target_ = (value / mres) / DRIVER_RESOLUTION; // convert from user units to meters
+        pAxis->hold_target_ =
+            (value / mres) / DRIVER_RESOLUTION; // convert from user units to meters
     }
 
     else if (function == stopLimitIndex_) {
-        pAxis->stop_limit_ = (value / mres) / DRIVER_RESOLUTION; // convert from user units to meters
-        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n", pAxis->stop_limit_);
-        sprintf(this->outString_, "%s", NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit_).c_str());
+        pAxis->stop_limit_ =
+            (value / mres) / DRIVER_RESOLUTION; // convert from user units to meters
+        asynPrint(this->pasynUserSelf, ASYN_REASON_SIGNAL, "Setting stop limit to %e meters\n",
+                  pAxis->stop_limit_);
+        sprintf(this->outString_, "%s",
+                NPDriveCmd::set_stop_limit(pAxis->axisIndex_, pAxis->stop_limit_).c_str());
         asyn_status = this->writeReadController();
         if (asyn_status) {
             goto skip;
